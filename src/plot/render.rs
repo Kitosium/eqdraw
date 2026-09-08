@@ -34,9 +34,8 @@ pub fn run(a: Args) -> Result<(), String> {
     let (xmn, xmx, ymn, ymx) = range::rng(a.xmn, a.xmx, a.ymn, a.ymx, bb);
     let mut bf = Buf::new(W, H);
 
-    let bd = Bnd { xmn, xmx, ymn, ymx };
     for (e, i) in &es {
-        pl(&mut bf, e, &mut cx, color::gt(*i), &bd)?;
+        pl(&mut bf, e, &mut cx, color::gt(*i), xmn, xmx, ymn, ymx)?;
     }
 
     draw::ax(&mut bf, xmn, xmx, ymn, ymx);
@@ -44,18 +43,16 @@ pub fn run(a: Args) -> Result<(), String> {
     Ok(())
 }
 
-struct Bnd { xmn: f64, xmx: f64, ymn: f64, ymx: f64 }
-
 fn pl(
     b: &mut Buf, e: &Expr, c: &mut Ctx, cl: crate::gfx::color::Clr,
-    bd: &Bnd,
+    xmn: f64, xmx: f64, ymn: f64, ymx: f64,
 ) -> Result<(), String> {
     let mut pre: Option<(i32, i32)> = None;
     let mut pre_y: Option<f64> = None;
-    let yspan = (bd.ymx - bd.ymn).abs();
+    let yspan = (ymx - ymn).abs();
 
     for i in 0..W {
-        let x = bd.xmn + (i as f64 / (W - 1) as f64) * (bd.xmx - bd.xmn);
+        let x = xmn + (i as f64 / (W - 1) as f64) * (xmx - xmn);
         c.vs.insert("x".into(), x);
 
         let y = match ev(e, c) {
@@ -71,7 +68,7 @@ fn pl(
             }
         }
 
-        let jf = (bd.ymx - y) / (bd.ymx - bd.ymn) * (H - 1) as f64;
+        let jf = (ymx - y) / (ymx - ymn) * (H - 1) as f64;
         if jf.abs() > 1_000_000.0 { pre = None; pre_y = Some(y); continue; }
 
         let j = jf.round() as i32;
@@ -117,9 +114,9 @@ fn prn(b: &Buf, qs: &[String], n: usize) {
 
     println!();
     println!("  {B}EQUATIONS{RST}");
-    for (i, q) in qs.iter().enumerate().take(n) {
+    for i in 0..n {
         let cl = color::gt(i).esc();
-        println!("    {G}{}{RST}  {}{}{RST}", i + 1, cl, q);
+        println!("    {G}{}{RST}  {}{}{RST}", i + 1, cl, qs[i]);
     }
     println!();
 }
