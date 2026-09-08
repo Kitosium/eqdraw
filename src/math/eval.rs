@@ -1,6 +1,9 @@
 use super::ast::Expr;
 use super::ctx::Ctx;
 
+const NR0: f64 = 1e-100;
+const HUGE: f64 = 1e100;
+
 pub fn ev(e: &Expr, c: &mut Ctx) -> Result<f64, String> {
     match e {
         Expr::Num(n) => Ok(*n),
@@ -11,7 +14,17 @@ pub fn ev(e: &Expr, c: &mut Ctx) -> Result<f64, String> {
         Expr::Mul(l, r) => Ok(ev(l, c)? * ev(r, c)?),
         Expr::Div(l, r) => {
             let b = ev(r, c)?;
-            if b == 0.0 { Err("Division by zero".into()) } else { Ok(ev(l, c)? / b) }
+            if b.abs() < NR0 {
+                Err("Division by zero".into())
+            } else {
+                let a = ev(l, c)?;
+                let q = a / b;
+                if q.abs() > HUGE {
+                    Err("Overflow".into())
+                } else {
+                    Ok(q)
+                }
+            }
         }
         Expr::Pow(b, e) => Ok(ev(b, c)?.powf(ev(e, c)?)),
         Expr::Call(n, a) => {

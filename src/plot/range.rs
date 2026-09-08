@@ -15,9 +15,12 @@ const DY: f64 = -10.0;
 const MY: f64 = 10.0;
 const ASP: f64 = 2.0;
 
-pub fn bnd(es: &[(Expr, usize)], c: &mut Ctx) -> Option<BBox> {
+pub fn bnd(es: &[(Expr, usize)], c: &mut Ctx, xmn: Option<f64>, xmx: Option<f64>) -> Option<BBox> {
     let mut pts: Vec<(f64, f64)> = Vec::new();
-    let sp: Vec<f64> = (-100..=100).map(|i| i as f64 * 0.1).collect();
+    let lo = xmn.unwrap_or(DX);
+    let hi = xmx.unwrap_or(MX);
+    let n = 200;
+    let sp: Vec<f64> = (0..=n).map(|i| lo + (hi - lo) * i as f64 / n as f64).collect();
 
     for (e, _) in es {
         for &x in &sp {

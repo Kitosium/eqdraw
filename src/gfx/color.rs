@@ -12,6 +12,12 @@ pub enum Clr {
 const PAL: [Clr; 6] = [Clr::Red, Clr::Grn, Clr::Yel, Clr::Blu, Clr::Mag, Clr::Cyn];
 
 pub const RST: &str = "\x1b[0m";
+pub const B: &str = "\x1b[1m";
+pub const D: &str = "\x1b[2m";
+pub const C: &str = "\x1b[36m";
+pub const G: &str = "\x1b[90m";
+pub const R: &str = "\x1b[31m";
+pub const Y: &str = "\x1b[33m";
 
 pub fn gt(i: usize) -> Clr {
     PAL[i % PAL.len()]
